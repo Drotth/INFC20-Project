@@ -62,7 +62,7 @@ public class GUI extends JFrame {
 			  public void actionPerformed(ActionEvent e) { 
 			    registerPanel();
 			  } 
-			} );
+			});
 		loginPanel.add(btnLogin);
 		loginPanel.add(btnRegister);
 		
@@ -92,7 +92,7 @@ public class GUI extends JFrame {
 	
 	private void registerPanel() {
 		contentPane.remove(loginPanel);
-		//contentPane.add(regPanel);
+		contentPane.add(regPanel);
 	}
 	
 	//******************** FUNCTION TO CLEAR LIST OF DATA ********************//
