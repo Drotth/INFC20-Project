@@ -1,20 +1,27 @@
-import java.awt.BorderLayout;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GUI extends JFrame {
 
 	private Controller controller;
 	private JPanel contentPane;
+	
+	JPanel loginPanel;
+	JPanel regPanel;
+	
 	private JTable tableData;
 	private DefaultTableModel modelData;
 
@@ -22,6 +29,7 @@ public class GUI extends JFrame {
 	public GUI(Controller controller) {
 		this.controller = controller;
 		initialize();
+		loginPanel();
 		setVisible(true);
 	}
 
@@ -29,22 +37,62 @@ public class GUI extends JFrame {
 	private void initialize() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(300, 200, 800, 600);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(50, 50, 50, 50));
+		contentPane = new JPanel(new CardLayout());
+		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		setContentPane(contentPane);
-		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
 		//******************** LOGIN LAYOUT ********************//
+		loginPanel = new JPanel();	
+		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
+		
 		JLabel lblAptNbr = new JLabel("Apartment Number:");
 		String[] listApts = {"1101", "1102", "1103"};
-		JComboBox<String> cBoxApts = new JComboBox<String>(listApts);
-		contentPane.add(lblAptNbr);
-		contentPane.add(cBoxApts);
+		JComboBox<String> cBoxApts = new JComboBox<String>();
+		loginPanel.add(lblAptNbr);
+		loginPanel.add(cBoxApts);
 		
 		JLabel lblPassword = new JLabel("Password:");
 		JTextField txtPassword = new JTextField();
-		contentPane.add(lblPassword);
-		contentPane.add(txtPassword);
+		loginPanel.add(lblPassword);
+		loginPanel.add(txtPassword);
+		
+		JButton btnLogin = new JButton("Login");
+		JButton btnRegister = new JButton("Register");
+		btnRegister.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+			    registerPanel();
+			  } 
+			} );
+		loginPanel.add(btnLogin);
+		loginPanel.add(btnRegister);
+		
+		//******************** REGISTER LAYOUT ********************//
+		regPanel = new JPanel();	
+		regPanel.setLayout(new BoxLayout(regPanel, BoxLayout.Y_AXIS));
+		
+		JLabel lblAptNbr2 = new JLabel("Apartment Number:");
+		String[] listApts2 = {"1101", "1102", "1103"};
+		JComboBox<String> cBoxApts2 = new JComboBox<String>();
+		regPanel.add(lblAptNbr2);
+		regPanel.add(cBoxApts2);
+		
+		JLabel lblPassword2 = new JLabel("Password:");
+		JTextField txtPassword2 = new JTextField();
+		regPanel.add(lblPassword2);
+		regPanel.add(txtPassword2);
+		
+		JButton btnRegister2 = new JButton("Register");
+		regPanel.add(btnRegister2);
+	}
+	
+	private void loginPanel() {
+		contentPane.removeAll();
+		contentPane.add(loginPanel);
+	}
+	
+	private void registerPanel() {
+		contentPane.remove(loginPanel);
+		//contentPane.add(regPanel);
 	}
 	
 	//******************** FUNCTION TO CLEAR LIST OF DATA ********************//
