@@ -33,11 +33,11 @@ public class GUI extends JFrame {
 	
 	// Available bookings objects
 	private DefaultTableModel modelAvailable;
-	private JTable availTable;
+	private JTable tableAvailable;
 	
 	// Personal bookings objects
 	private DefaultTableModel modelBooked;
-	private JTable bookedTable;
+	private JTable tableBooked;
 
 	//******************** CONSTRUCTOR ********************//
 	public GUI(Controller controller) {
@@ -46,12 +46,16 @@ public class GUI extends JFrame {
 		setVisible(true);
 		
 		String[][] fakeData = new String[31][];
-		
 		for (int i = 0; i < 31; i++) {
 			fakeData[i] = new String[]{"starttime " + i, "endtime " + i};
 		}
-		
 		showAvailable(fakeData);
+		
+		String[][] fakeData2 = new String[2][];
+		for (int i = 0; i < 2; i++) {
+			fakeData2[i] = new String[]{"2018-10-31", "starttime " + i, "endtime " + i};
+		}
+		showBooked(fakeData2);
 	}
 
 	//******************** INITIALIZE CONTENTS OF THE FRAME ********************//
@@ -62,14 +66,13 @@ public class GUI extends JFrame {
 		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		setContentPane(contentPane);
 		
-		JPanel leftPanel = new JPanel(new BorderLayout());
+		JPanel leftPanel = new JPanel();
 		leftPanel.setBounds(0, 0, 374, 544);
 		JPanel rightPanel = new JPanel(new BorderLayout());
 		rightPanel.setBounds(389, 0, 389, 544);
 		
 		JPanel calendar = new JPanel(new BorderLayout());
-		calendar.setSize(300, 300); //why doesn't this work!?
-		JScrollPane scrollBTimes = new JScrollPane();
+		calendar.setBounds(0, 0, 374, 227);
 		
 		//****** CALENDAR PANEL ******//
 	    labelMonthYear = new JLabel();
@@ -125,28 +128,51 @@ public class GUI extends JFrame {
 	    updateMonth();
 	    
 	    //****** AVAILABLE BOOKINGS PANEL ******//
-	    String [] columnsTimeslots = {"Start time", "end time"};
-	    modelAvailable = new DefaultTableModel(null, columnsTimeslots);
-	    availTable = new JTable(modelAvailable){
+	    String [] columnsAvailable = {"Start time", "end time"};
+	    modelAvailable = new DefaultTableModel(null, columnsAvailable);
+	    tableAvailable = new JTable(modelAvailable){
 			@Override
 			public boolean isCellEditable(int row, int column){
 			        return false;
 			}
 		};
 		
-	    availTable.addMouseListener(new java.awt.event.MouseAdapter() {
+	    tableAvailable.addMouseListener(new java.awt.event.MouseAdapter() {
 	        @Override
 	        public void mouseClicked(java.awt.event.MouseEvent evt) {
-	            int row = availTable.rowAtPoint(evt.getPoint());
-	            int col = availTable.columnAtPoint(evt.getPoint());
+	            int row = tableAvailable.rowAtPoint(evt.getPoint());
+	            int col = tableAvailable.columnAtPoint(evt.getPoint());
 	            
-	            System.out.println(availTable.getValueAt(row, col));
+	            System.out.println(tableAvailable.getValueAt(row, col));
 	        }
 	    });
-	    JScrollPane scrollAvailable = new JScrollPane(availTable);
+	    JScrollPane scrollAvailable = new JScrollPane(tableAvailable);
 	    
-		leftPanel.add(calendar, BorderLayout.NORTH);
-		leftPanel.add(scrollBTimes, BorderLayout.SOUTH);
+	    //****** PERSONAL BOOKINGS PANEL ******//
+	    String [] columnsBooked = {"Date", "Start time", "End time"};
+	    modelBooked = new DefaultTableModel(null, columnsBooked);
+	    tableBooked = new JTable(modelBooked){
+			@Override
+			public boolean isCellEditable(int row, int column){
+			        return false;
+			}
+		};
+		
+	    tableBooked.addMouseListener(new java.awt.event.MouseAdapter() {
+	        @Override
+	        public void mouseClicked(java.awt.event.MouseEvent evt) {
+	            int row = tableBooked.rowAtPoint(evt.getPoint());
+	            int col = tableBooked.columnAtPoint(evt.getPoint());
+	            
+	            System.out.println(tableBooked.getValueAt(row, col));
+	        }
+	    });
+	    JScrollPane scrollBooked = new JScrollPane(tableBooked);
+	    scrollBooked.setBounds(0, 243, 374, 301);
+		leftPanel.setLayout(null);
+	    
+		leftPanel.add(calendar);
+		leftPanel.add(scrollBooked);
 		rightPanel.add(scrollAvailable);
 		contentPane.setLayout(null);
 		contentPane.add(leftPanel);
@@ -176,16 +202,24 @@ public class GUI extends JFrame {
 	  }
 	
 	//******************** FUNCTION TO CLEAR LIST OF DATA ********************//
-	private void clearList() {
-		int rowCount = modelAvailable.getRowCount();
-		for (int i = rowCount - 1; i >= 0; i--) {
-		    modelAvailable.removeRow(i);
+	private void clearList(String list) {
+		switch (list){
+			case "available":
+				for (int i = modelAvailable.getRowCount() - 1; i >= 0; i--) {
+				    modelAvailable.removeRow(i);
+				}
+				break;
+			case "booked":
+				for (int i = modelBooked.getRowCount() - 1; i >= 0; i--) {
+				    modelBooked.removeRow(i);
+				}
+				break;
 		}
 	}
 
 	//******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
 	public void showAvailable(String[][] data) {
-		clearList();
+		clearList("available");
 		
 		for (int i = 0; i < data.length; i++) {
 			modelAvailable.addRow(data[i]);
@@ -194,7 +228,7 @@ public class GUI extends JFrame {
 	
 	//******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
 	public void showBooked(String[][] data) {
-		clearList();
+		clearList("booked");
 		
 		for (int i = 0; i < data.length; i++) {
 			modelBooked.addRow(data[i]);
