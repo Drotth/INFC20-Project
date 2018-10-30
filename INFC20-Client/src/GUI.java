@@ -25,18 +25,33 @@ public class GUI extends JFrame {
 	private Controller controller;
 	private JPanel contentPane;
 	
-	Calendar cal = new GregorianCalendar();
-	JLabel labelMonthYear;
-	DefaultTableModel modelWeekDays;
+	// Calendar objects
+	private Calendar cal = new GregorianCalendar();
+	private JLabel labelMonthYear;
+	private DefaultTableModel modelWeekDays;
+	private JTable calTable;
 	
-	private JTable tableData;
-	private DefaultTableModel modelData;
+	// Available bookings objects
+	private DefaultTableModel modelAvailable;
+	private JTable availTable;
+	
+	// Personal bookings objects
+	private DefaultTableModel modelBooked;
+	private JTable bookedTable;
 
 	//******************** CONSTRUCTOR ********************//
 	public GUI(Controller controller) {
 		this.controller = controller;
 		initialize();
 		setVisible(true);
+		
+		String[][] fakeData = new String[31][];
+		
+		for (int i = 0; i < 31; i++) {
+			fakeData[i] = new String[]{"starttime " + i, "endtime " + i};
+		}
+		
+		showAvailable(fakeData);
 	}
 
 	//******************** INITIALIZE CONTENTS OF THE FRAME ********************//
@@ -48,15 +63,13 @@ public class GUI extends JFrame {
 		setContentPane(contentPane);
 		
 		JPanel leftPanel = new JPanel(new BorderLayout());
+		leftPanel.setBounds(0, 0, 374, 544);
 		JPanel rightPanel = new JPanel(new BorderLayout());
+		rightPanel.setBounds(389, 0, 389, 544);
 		
 		JPanel calendar = new JPanel(new BorderLayout());
 		calendar.setSize(300, 300); //why doesn't this work!?
-		JScrollPane scrollATimes = new JScrollPane();
 		JScrollPane scrollBTimes = new JScrollPane();
-		leftPanel.add(calendar, BorderLayout.NORTH);
-		leftPanel.add(scrollBTimes, BorderLayout.SOUTH);
-		rightPanel.add(scrollATimes);
 		
 		//****** CALENDAR PANEL ******//
 	    labelMonthYear = new JLabel();
@@ -84,85 +97,107 @@ public class GUI extends JFrame {
 	    panelHeader.add(labelMonthYear,BorderLayout.CENTER);
 	    panelHeader.add(btnNext,BorderLayout.EAST);
 	    
-	    String [] columns = {"Sun", "Mon","Tue","Wed","Thu","Fri","Sat"};
-	    modelWeekDays = new DefaultTableModel(null,columns);
-	    tableData = new JTable(modelWeekDays){
+	    String [] columnsCal = {"Sun", "Mon","Tue","Wed","Thu","Fri","Sat"};
+	    modelWeekDays = new DefaultTableModel(null, columnsCal);
+	    calTable = new JTable(modelWeekDays){
 			@Override
 			public boolean isCellEditable(int row, int column){
 			        return false;
 			}
-//            public boolean getScrollableTracksViewportWidth()
-//            {
-//                return getPreferredSize().width < getParent().getWidth();
-//            }
 		};
-	    tableData.addMouseListener(new java.awt.event.MouseAdapter() {
+		
+	    calTable.addMouseListener(new java.awt.event.MouseAdapter() {
 	        @Override
 	        public void mouseClicked(java.awt.event.MouseEvent evt) {
-	            int row = tableData.rowAtPoint(evt.getPoint());
-	            int col = tableData.columnAtPoint(evt.getPoint());
+	            int row = calTable.rowAtPoint(evt.getPoint());
+	            int col = calTable.columnAtPoint(evt.getPoint());
 	            
 	            System.out.println(cal.get(Calendar.YEAR) + "-" + 
 	            		(cal.get(Calendar.MONTH)+1) + "-" + 
-	            		tableData.getValueAt(row, col));
+	            		calTable.getValueAt(row, col));
 	        }
 	    });
-	    JScrollPane scrollDates = new JScrollPane(tableData);
+	    JScrollPane scrollDates = new JScrollPane(calTable);
 	    
 	    calendar.add(panelHeader,BorderLayout.NORTH);
 	    calendar.add(scrollDates,BorderLayout.CENTER);
-	    
-	    contentPane.add(calendar);
 	 
 	    updateMonth();
+	    
+	    //****** AVAILABLE BOOKINGS PANEL ******//
+	    String [] columnsTimeslots = {"Start time", "end time"};
+	    modelAvailable = new DefaultTableModel(null, columnsTimeslots);
+	    availTable = new JTable(modelAvailable){
+			@Override
+			public boolean isCellEditable(int row, int column){
+			        return false;
+			}
+		};
+		
+	    availTable.addMouseListener(new java.awt.event.MouseAdapter() {
+	        @Override
+	        public void mouseClicked(java.awt.event.MouseEvent evt) {
+	            int row = availTable.rowAtPoint(evt.getPoint());
+	            int col = availTable.columnAtPoint(evt.getPoint());
+	            
+	            System.out.println(availTable.getValueAt(row, col));
+	        }
+	    });
+	    JScrollPane scrollAvailable = new JScrollPane(availTable);
+	    
+		leftPanel.add(calendar, BorderLayout.NORTH);
+		leftPanel.add(scrollBTimes, BorderLayout.SOUTH);
+		rightPanel.add(scrollAvailable);
+		contentPane.setLayout(null);
+		contentPane.add(leftPanel);
+		contentPane.add(rightPanel);
+	    
 	}
 	
-	  void updateMonth() {
-		    cal.set(Calendar.DAY_OF_MONTH, 1);
-		 
-		    String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH);
-		    int year = cal.get(Calendar.YEAR);
-		    labelMonthYear.setText(month + " " + year);
-		 
-		    int startDay = cal.get(Calendar.DAY_OF_WEEK);
-		    int numberOfDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-		    int weeks = cal.getActualMaximum(Calendar.WEEK_OF_MONTH);
-		 
-		    modelWeekDays.setRowCount(0);
-		    modelWeekDays.setRowCount(weeks);
-		 
-		    int i = startDay-1;
-		    for(int day=1;day<=numberOfDays;day++){
-		      modelWeekDays.setValueAt(day, i/7 , i%7 );    
-		      i = i + 1;
-		    }
-		  }
+	private void updateMonth() {
+	    cal.set(Calendar.DAY_OF_MONTH, 1);
+	 
+	    String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH);
+	    int year = cal.get(Calendar.YEAR);
+	    labelMonthYear.setText(month + " " + year);
+	 
+	    int startDay = cal.get(Calendar.DAY_OF_WEEK);
+	    int numberOfDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+	    int weeks = cal.getActualMaximum(Calendar.WEEK_OF_MONTH);
+	 
+	    modelWeekDays.setRowCount(0);
+	    modelWeekDays.setRowCount(weeks);
+	 
+	    int i = startDay-1;
+	    for(int day=1;day<=numberOfDays;day++){
+	      modelWeekDays.setValueAt(day, i/7 , i%7 );    
+	      i = i + 1;
+	    }
+	  }
 	
 	//******************** FUNCTION TO CLEAR LIST OF DATA ********************//
 	private void clearList() {
-		int rowCount = modelData.getRowCount();
+		int rowCount = modelAvailable.getRowCount();
 		for (int i = rowCount - 1; i >= 0; i--) {
-		    modelData.removeRow(i);
-		}
-	}
-	
-	//******************** FUNCTION TO SET COLUMN SIZES AND NAMES ********************//
-	private void updateColumns(String[] names) {
-		modelData.setColumnCount(names.length);
-		for (int i = 0; i < names.length; i++) {
-			tableData.getTableHeader().getColumnModel().getColumn(i).setHeaderValue(names[i]);
-			tableData.getTableHeader().getColumnModel().getColumn(i).setMinWidth(100);
-			tableData.getTableHeader().repaint();
+		    modelAvailable.removeRow(i);
 		}
 	}
 
-	//******************** FUNCTION TO FILL LIST WITH DATA ********************//
-	public void showData(String[][] data) {
+	//******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
+	public void showAvailable(String[][] data) {
 		clearList();
-		updateColumns(data[0]);
 		
-		for (int i = 1; i < data.length; i++) {
-			modelData.addRow(data[i]);
+		for (int i = 0; i < data.length; i++) {
+			modelAvailable.addRow(data[i]);
+		}
+	}
+	
+	//******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
+	public void showBooked(String[][] data) {
+		clearList();
+		
+		for (int i = 0; i < data.length; i++) {
+			modelBooked.addRow(data[i]);
 		}
 	}
 	
@@ -171,6 +206,6 @@ public class GUI extends JFrame {
 		String[] errortext = {error};
 		String[] header = {"Felmeddelande"};
 		String[][] show = {header, errortext};
-		showData(show);
+		showAvailable(show);
 	}
 }
