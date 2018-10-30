@@ -6,6 +6,12 @@ import java.sql.ResultSet;
 	import java.sql.Statement;
 
 	public class DBConnection {
+		
+		private Controller controller;
+		
+		public DBConnection(Controller controller) {
+			this.controller = controller;
+		}
 	
 	    public static void main(String[] args) {
 
