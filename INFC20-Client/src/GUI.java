@@ -82,7 +82,7 @@ public class GUI extends JFrame {
 	    btnNext.addActionListener(new ActionListener() {
 	      public void actionPerformed(ActionEvent ae) {
 	        cal.add(Calendar.MONTH, +1);
-	        updateMonth();
+	        updateCalendar();
 	      }
 	    });
 	    
@@ -90,7 +90,7 @@ public class GUI extends JFrame {
 	    btnPrev.addActionListener(new ActionListener() {
 	      public void actionPerformed(ActionEvent ae) {
 	        cal.add(Calendar.MONTH, -1);
-	        updateMonth();
+	        updateCalendar();
 	      }
 	    });
 	 
@@ -125,7 +125,7 @@ public class GUI extends JFrame {
 	    calendar.add(panelHeader,BorderLayout.NORTH);
 	    calendar.add(scrollDates,BorderLayout.CENTER);
 	 
-	    updateMonth();
+	    updateCalendar();
 	    
 	    //****** AVAILABLE BOOKINGS PANEL ******//
 	    String [] columnsAvailable = {"Start time", "end time"};
@@ -180,7 +180,8 @@ public class GUI extends JFrame {
 	    
 	}
 	
-	private void updateMonth() {
+	//******************** FUNCTION TO UPDATE THE CALENDAR ********************//
+	private void updateCalendar() {
 	    cal.set(Calendar.DAY_OF_MONTH, 1);
 	 
 	    String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH);
