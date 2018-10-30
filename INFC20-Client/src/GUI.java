@@ -1,26 +1,33 @@
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class GUI extends JFrame {
 
 	private Controller controller;
 	private JPanel contentPane;
 	
-	JPanel loginPanel;
-	JPanel regPanel;
+	Calendar cal = new GregorianCalendar();
+	JLabel labelMonthYear;
+	DefaultTableModel modelWeekDays;
 	
 	private JTable tableData;
 	private DefaultTableModel modelData;
@@ -29,7 +36,6 @@ public class GUI extends JFrame {
 	public GUI(Controller controller) {
 		this.controller = controller;
 		initialize();
-		loginPanel();
 		setVisible(true);
 	}
 
@@ -37,63 +43,100 @@ public class GUI extends JFrame {
 	private void initialize() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(300, 200, 800, 600);
-		contentPane = new JPanel(new CardLayout());
+		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		setContentPane(contentPane);
 		
-		//******************** LOGIN LAYOUT ********************//
-		loginPanel = new JPanel();	
-		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
+		JPanel leftPanel = new JPanel(new BorderLayout());
+		JPanel rightPanel = new JPanel(new BorderLayout());
 		
-		JLabel lblAptNbr = new JLabel("Apartment Number:");
-		String[] listApts = {"1101", "1102", "1103"};
-		JComboBox<String> cBoxApts = new JComboBox<String>();
-		loginPanel.add(lblAptNbr);
-		loginPanel.add(cBoxApts);
+		JPanel calendar = new JPanel(new BorderLayout());
+		calendar.setSize(300, 300); //why doesn't this work!?
+		JScrollPane scrollATimes = new JScrollPane();
+		JScrollPane scrollBTimes = new JScrollPane();
+		leftPanel.add(calendar, BorderLayout.NORTH);
+		leftPanel.add(scrollBTimes, BorderLayout.SOUTH);
+		rightPanel.add(scrollATimes);
 		
-		JLabel lblPassword = new JLabel("Password:");
-		JTextField txtPassword = new JTextField();
-		loginPanel.add(lblPassword);
-		loginPanel.add(txtPassword);
-		
-		JButton btnLogin = new JButton("Login");
-		JButton btnRegister = new JButton("Register");
-		btnRegister.addActionListener(new ActionListener() { 
-			  public void actionPerformed(ActionEvent e) { 
-			    registerPanel();
-			  } 
-			});
-		loginPanel.add(btnLogin);
-		loginPanel.add(btnRegister);
-		
-		//******************** REGISTER LAYOUT ********************//
-		regPanel = new JPanel();	
-		regPanel.setLayout(new BoxLayout(regPanel, BoxLayout.Y_AXIS));
-		
-		JLabel lblAptNbr2 = new JLabel("Apartment Number:");
-		String[] listApts2 = {"1101", "1102", "1103"};
-		JComboBox<String> cBoxApts2 = new JComboBox<String>();
-		regPanel.add(lblAptNbr2);
-		regPanel.add(cBoxApts2);
-		
-		JLabel lblPassword2 = new JLabel("Password:");
-		JTextField txtPassword2 = new JTextField();
-		regPanel.add(lblPassword2);
-		regPanel.add(txtPassword2);
-		
-		JButton btnRegister2 = new JButton("Register");
-		regPanel.add(btnRegister2);
+		//****** CALENDAR PANEL ******//
+	    labelMonthYear = new JLabel();
+	    labelMonthYear.setHorizontalAlignment(SwingConstants.CENTER);
+	 
+	    JButton btnNext = new JButton(">");
+	    btnNext.addActionListener(new ActionListener() {
+	      public void actionPerformed(ActionEvent ae) {
+	        cal.add(Calendar.MONTH, +1);
+	        updateMonth();
+	      }
+	    });
+	    
+	    JButton btnPrev = new JButton("<");
+	    btnPrev.addActionListener(new ActionListener() {
+	      public void actionPerformed(ActionEvent ae) {
+	        cal.add(Calendar.MONTH, -1);
+	        updateMonth();
+	      }
+	    });
+	 
+	    JPanel panelHeader = new JPanel();
+	    panelHeader.setLayout(new BorderLayout());
+	    panelHeader.add(btnPrev,BorderLayout.WEST);
+	    panelHeader.add(labelMonthYear,BorderLayout.CENTER);
+	    panelHeader.add(btnNext,BorderLayout.EAST);
+	    
+	    String [] columns = {"Sun", "Mon","Tue","Wed","Thu","Fri","Sat"};
+	    modelWeekDays = new DefaultTableModel(null,columns);
+	    tableData = new JTable(modelWeekDays){
+			@Override
+			public boolean isCellEditable(int row, int column){
+			        return false;
+			}
+//            public boolean getScrollableTracksViewportWidth()
+//            {
+//                return getPreferredSize().width < getParent().getWidth();
+//            }
+		};
+	    tableData.addMouseListener(new java.awt.event.MouseAdapter() {
+	        @Override
+	        public void mouseClicked(java.awt.event.MouseEvent evt) {
+	            int row = tableData.rowAtPoint(evt.getPoint());
+	            int col = tableData.columnAtPoint(evt.getPoint());
+	            
+	            System.out.println(cal.get(Calendar.YEAR) + "-" + 
+	            		(cal.get(Calendar.MONTH)+1) + "-" + 
+	            		tableData.getValueAt(row, col));
+	        }
+	    });
+	    JScrollPane scrollDates = new JScrollPane(tableData);
+	    
+	    calendar.add(panelHeader,BorderLayout.NORTH);
+	    calendar.add(scrollDates,BorderLayout.CENTER);
+	    
+	    contentPane.add(calendar);
+	 
+	    updateMonth();
 	}
 	
-	private void loginPanel() {
-		contentPane.removeAll();
-		contentPane.add(loginPanel);
-	}
-	
-	private void registerPanel() {
-		contentPane.remove(loginPanel);
-		contentPane.add(regPanel);
-	}
+	  void updateMonth() {
+		    cal.set(Calendar.DAY_OF_MONTH, 1);
+		 
+		    String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH);
+		    int year = cal.get(Calendar.YEAR);
+		    labelMonthYear.setText(month + " " + year);
+		 
+		    int startDay = cal.get(Calendar.DAY_OF_WEEK);
+		    int numberOfDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		    int weeks = cal.getActualMaximum(Calendar.WEEK_OF_MONTH);
+		 
+		    modelWeekDays.setRowCount(0);
+		    modelWeekDays.setRowCount(weeks);
+		 
+		    int i = startDay-1;
+		    for(int day=1;day<=numberOfDays;day++){
+		      modelWeekDays.setValueAt(day, i/7 , i%7 );    
+		      i = i + 1;
+		    }
+		  }
 	
 	//******************** FUNCTION TO CLEAR LIST OF DATA ********************//
 	private void clearList() {
