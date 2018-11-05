@@ -3,19 +3,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -38,24 +35,20 @@ public class GUI extends JFrame {
 	// Personal bookings objects
 	private DefaultTableModel modelBooked;
 	private JTable tableBooked;
+	
+	// Header objects
+	private JLabel lblHello;
+	private String[] aptList;
+	private JComboBox<String> boxApt;
 
 	//******************** CONSTRUCTOR ********************//
 	public GUI(Controller controller) {
+		setResizable(false);
 		this.controller = controller;
 		initialize();
 		setVisible(true);
 		
-		String[][] fakeData = new String[31][];
-		for (int i = 0; i < 31; i++) {
-			fakeData[i] = new String[]{"starttime " + i, "endtime " + i};
-		}
-		showAvailable(fakeData);
-		
-		String[][] fakeData2 = new String[2][];
-		for (int i = 0; i < 2; i++) {
-			fakeData2[i] = new String[]{"2018-10-31", "starttime " + i, "endtime " + i};
-		}
-		showBooked(fakeData2);
+		lblHello.setText("Hello, please select an apartment number!");
 	}
 
 	//******************** INITIALIZE CONTENTS OF THE FRAME ********************//
@@ -67,12 +60,31 @@ public class GUI extends JFrame {
 		setContentPane(contentPane);
 		
 		JPanel leftPanel = new JPanel();
-		leftPanel.setBounds(0, 0, 374, 544);
-		JPanel rightPanel = new JPanel(new BorderLayout());
-		rightPanel.setBounds(389, 0, 389, 544);
+		leftPanel.setBounds(20, 40, 354, 504);
+		JPanel rightPanel = new JPanel();
+		rightPanel.setBounds(384, 40, 390, 504);
 		
 		JPanel calendar = new JPanel(new BorderLayout());
-		calendar.setBounds(0, 0, 374, 227);
+		calendar.setBounds(0, 0, 354, 227);
+		
+		//****** HEADER OBJECTS ******//
+		boxApt = new JComboBox<String>();
+		boxApt.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		        controller.showBooked(boxApt.getSelectedItem().toString());
+		        lblHello.setText("Hello " + controller.getName(boxApt.getSelectedItem().toString()) + "!");
+		    }
+		});
+		boxApt.setBounds(157, 11, 74, 20);
+		contentPane.add(boxApt);
+		
+		JLabel lblChooseApartment = new JLabel("Choose apartment:");
+		lblChooseApartment.setBounds(20, 14, 127, 14);
+		contentPane.add(lblChooseApartment);
+		
+		lblHello = new JLabel("Hello");
+		lblHello.setBounds(256, 14, 308, 14);
+		contentPane.add(lblHello);
 		
 		//****** CALENDAR PANEL ******//
 	    labelMonthYear = new JLabel();
@@ -115,9 +127,11 @@ public class GUI extends JFrame {
 	            int row = calTable.rowAtPoint(evt.getPoint());
 	            int col = calTable.columnAtPoint(evt.getPoint());
 	            
-	            System.out.println(cal.get(Calendar.YEAR) + "-" + 
-	            		(cal.get(Calendar.MONTH)+1) + "-" + 
-	            		calTable.getValueAt(row, col));
+	            if (calTable.getValueAt(row, col) != null) {
+		            controller.showAvailable(cal.get(Calendar.YEAR) + "-" + 
+		            		(cal.get(Calendar.MONTH)+1) + "-" + 
+		            		calTable.getValueAt(row, col));
+	            }
 	        }
 	    });
 	    JScrollPane scrollDates = new JScrollPane(calTable);
@@ -127,8 +141,43 @@ public class GUI extends JFrame {
 	 
 	    updateCalendar();
 	    
+	    //****** PERSONAL BOOKINGS PANEL ******//
+		JLabel lblBooked = new JLabel("Booked timeslots");
+		lblBooked.setHorizontalAlignment(SwingConstants.CENTER);
+		lblBooked.setBounds(114, 238, 122, 14);
+		leftPanel.add(lblBooked);
+		contentPane.add(rightPanel);
+	    
+	    String [] columnsBooked = {"Date", "Start time", "End time"};
+	    modelBooked = new DefaultTableModel(null, columnsBooked);
+	    tableBooked = new JTable(modelBooked){
+			@Override
+			public boolean isCellEditable(int row, int column){
+			        return false;
+			}
+		};
+		
+	    tableBooked.addMouseListener(new java.awt.event.MouseAdapter() {
+	        @Override
+	        public void mouseClicked(java.awt.event.MouseEvent evt) {
+	            int row = tableBooked.rowAtPoint(evt.getPoint());
+	            int col = tableBooked.columnAtPoint(evt.getPoint());
+	        }
+	    });
+	    JScrollPane scrollBooked = new JScrollPane(tableBooked);
+	    scrollBooked.setBounds(0, 261, 354, 218);
+		
+		JButton btnRemoveBooking = new JButton("Remove booking");
+		btnRemoveBooking.setBounds(0, 481, 354, 23);
+		leftPanel.add(btnRemoveBooking);
+	    
 	    //****** AVAILABLE BOOKINGS PANEL ******//
-	    String [] columnsAvailable = {"Start time", "end time"};
+		JLabel lblAvailable = new JLabel("Available timeslots");
+		lblAvailable.setBounds(0, 0, 385, 25);
+		rightPanel.add(lblAvailable);
+		lblAvailable.setHorizontalAlignment(SwingConstants.CENTER);
+	    
+	    String [] columnsAvailable = {"Start time", "End time"};
 	    modelAvailable = new DefaultTableModel(null, columnsAvailable);
 	    tableAvailable = new JTable(modelAvailable){
 			@Override
@@ -147,37 +196,23 @@ public class GUI extends JFrame {
 	        }
 	    });
 	    JScrollPane scrollAvailable = new JScrollPane(tableAvailable);
+	    scrollAvailable.setBounds(0, 25, 385, 454);
 	    
-	    //****** PERSONAL BOOKINGS PANEL ******//
-	    String [] columnsBooked = {"Date", "Start time", "End time"};
-	    modelBooked = new DefaultTableModel(null, columnsBooked);
-	    tableBooked = new JTable(modelBooked){
-			@Override
-			public boolean isCellEditable(int row, int column){
-			        return false;
-			}
-		};
-		
-	    tableBooked.addMouseListener(new java.awt.event.MouseAdapter() {
-	        @Override
-	        public void mouseClicked(java.awt.event.MouseEvent evt) {
-	            int row = tableBooked.rowAtPoint(evt.getPoint());
-	            int col = tableBooked.columnAtPoint(evt.getPoint());
-	            
-	            System.out.println(tableBooked.getValueAt(row, col));
-	        }
-	    });
-	    JScrollPane scrollBooked = new JScrollPane(tableBooked);
-	    scrollBooked.setBounds(0, 243, 374, 301);
-		leftPanel.setLayout(null);
+		JButton btnBook = new JButton("Book");
+		btnBook.setBounds(0, 480, 385, 24);
+		rightPanel.add(btnBook);
+		contentPane.setLayout(null);
+		contentPane.add(leftPanel);
 	    
+		//****** BIND EVERTHING TOGETHER ******//
 		leftPanel.add(calendar);
 		leftPanel.add(scrollBooked);
 		rightPanel.add(scrollAvailable);
-		contentPane.setLayout(null);
-		contentPane.add(leftPanel);
-		contentPane.add(rightPanel);
-	    
+		leftPanel.setLayout(null);
+		rightPanel.setLayout(null);
+		
+		aptList = controller.getApartments();
+		boxApt.setModel(new DefaultComboBoxModel<String>(aptList));
 	}
 	
 	//******************** FUNCTION TO UPDATE THE CALENDAR ********************//
@@ -219,28 +254,20 @@ public class GUI extends JFrame {
 	}
 
 	//******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
-	public void showAvailable(String[][] data) {
+	public void showAvailable(ArrayList<String[]> data) {
 		clearList("available");
 		
-		for (int i = 0; i < data.length; i++) {
-			modelAvailable.addRow(data[i]);
+		for (int i = 0; i < data.size(); i++) {
+			modelAvailable.addRow(data.get(i));
 		}
 	}
 	
 	//******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
-	public void showBooked(String[][] data) {
+	public void showBooked(ArrayList<String[]> data) {
 		clearList("booked");
 		
-		for (int i = 0; i < data.length; i++) {
-			modelBooked.addRow(data[i]);
+		for (int i = 0; i < data.size(); i++) {
+			modelBooked.addRow(data.get(i));
 		}
-	}
-	
-	//******************** FUNCTION TO SHOW ERROR MESSAGE ********************//
-	public void showError(String error) {
-		String[] errortext = {error};
-		String[] header = {"Felmeddelande"};
-		String[][] show = {header, errortext};
-		showAvailable(show);
 	}
 }
