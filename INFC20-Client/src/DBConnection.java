@@ -1,44 +1,99 @@
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.*;
+import java.util.ArrayList;
 
-	public class DBConnection {
+public class DBConnection {
+
+	public ArrayList<String[]> getApartments() {
+		String SPsql = "EXEC dbo.GetUsers";
+		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
 		
-    private Controller controller;
-		
-		public DBConnection(Controller controller) {
-			this.controller = controller;
+		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
+			ps.setQueryTimeout(5);
+			ResultSet rs = ps.executeQuery();
+			
+			ArrayList<String[]> data = new ArrayList<String[]>();
+			while (rs.next()) {
+				String[] dataRow = {rs.getString("ApartmentId"), rs.getString("Name")};
+				data.add(dataRow);
+			}
+			return data;
+			
 		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("null");
+			return null;
+		}
+	}
 	
-	    public static void main(String[] args) {
-
-	   // Create a variable for the connection string.
-	  String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
-	  String SPsql = "EXEC dbo.GetBookingsByUser ?";   // for stored proc taking 3 parameters
-	  
-	try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql);) {
-     
-        ps.setEscapeProcessing(true);
-        ps.setQueryTimeout(10);
-        ps.setInt(1,102);
-        ResultSet rs = ps.executeQuery();
-        
-        
-        
-        // Iterate through the data in the result set and display it.
-        while (((ResultSet) rs).next()) {
-            System.out.println(rs.getString("BookingDate") + " " + rs.getString("StartTime") + " " + rs.getString("ApartmentID"));
-        }
-    }
-    // Handle any errors that may have occurred.
-    catch (SQLException e) {
-        e.printStackTrace();
-   
-    }
-}}
+	public ArrayList<String[]> getBookingsByApt(int aptID) {
+		String SPsql = "EXEC dbo.GetBookingsByUser ?";
+		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
+		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
+			ps.setQueryTimeout(5);
+			ps.setInt(1, aptID);
+			ResultSet rs = ps.executeQuery();
+			
+			ArrayList<String[]> data = new ArrayList<String[]>();
+			while (rs.next()) {
+				String[] dataRow = {rs.getString("BookingDate"), rs.getString("StartTime"), rs.getString("EndTime")};
+				data.add(dataRow);
+			}
+			return data;
+			
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
 	
+	public ArrayList<String[]> getBookedByDate(String date) {
+		String SPsql = "EXEC dbo.GetBookingsByDate ?";
+		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
+		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
+			ps.setQueryTimeout(5);
+			ps.setDate(1, Date.valueOf(date));
+			ResultSet rs = ps.executeQuery();
+			
+			ArrayList<String[]> data = new ArrayList<String[]>();
+			while (rs.next()) {
+				String[] dataRow = {rs.getString("BookingDate"), rs.getString("TimeSlotId"), rs.getString("ApartmentId")};
+				data.add(dataRow);
+			}
+			return data;
+			
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
+	public ArrayList<String[]> getTimeSlots() {
+		String SPsql = "EXEC dbo.GetTimeSlots";
+		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
+		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
+			ps.setQueryTimeout(5);
+			ResultSet rs = ps.executeQuery();
+			
+			ArrayList<String[]> data = new ArrayList<String[]>();
+			while (rs.next()) {
+				String[] dataRow = {rs.getString("StartTime"), rs.getString("EndTime")};
+				data.add(dataRow);
+			}
+			return data;
+			
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+}
