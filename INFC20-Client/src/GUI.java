@@ -41,6 +41,7 @@ public class GUI extends JFrame {
 
 	//******************** CONSTRUCTOR ********************//
 	public GUI(Controller controller) {
+		setResizable(false);
 		this.controller = controller;
 		initialize();
 		setVisible(true);
@@ -67,12 +68,25 @@ public class GUI extends JFrame {
 		setContentPane(contentPane);
 		
 		JPanel leftPanel = new JPanel();
-		leftPanel.setBounds(0, 0, 374, 544);
-		JPanel rightPanel = new JPanel(new BorderLayout());
-		rightPanel.setBounds(389, 0, 389, 544);
+		leftPanel.setBounds(20, 40, 354, 504);
+		JPanel rightPanel = new JPanel();
+		rightPanel.setBounds(384, 40, 390, 504);
 		
 		JPanel calendar = new JPanel(new BorderLayout());
-		calendar.setBounds(0, 0, 374, 227);
+		calendar.setBounds(0, 0, 354, 227);
+		
+		JComboBox<String> boxApt = new JComboBox<String>();
+		boxApt.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		        controller.showBooked((String) boxApt.getSelectedItem());
+		    }
+		});
+		boxApt.setBounds(157, 11, 74, 20);
+		contentPane.add(boxApt);
+		
+		JLabel lblChooseApartment = new JLabel("Choose apartment:");
+		lblChooseApartment.setBounds(20, 14, 127, 14);
+		contentPane.add(lblChooseApartment);
 		
 		//****** CALENDAR PANEL ******//
 	    labelMonthYear = new JLabel();
@@ -118,6 +132,11 @@ public class GUI extends JFrame {
 	            System.out.println(cal.get(Calendar.YEAR) + "-" + 
 	            		(cal.get(Calendar.MONTH)+1) + "-" + 
 	            		calTable.getValueAt(row, col));
+	            
+	            controller.showAvailable(cal.get(Calendar.YEAR) + "-" + 
+	            		(cal.get(Calendar.MONTH)+1) + "-" + 
+	            		calTable.getValueAt(row, col));
+	            
 	        }
 	    });
 	    JScrollPane scrollDates = new JScrollPane(calTable);
@@ -127,28 +146,13 @@ public class GUI extends JFrame {
 	 
 	    updateCalendar();
 	    
-	    //****** AVAILABLE BOOKINGS PANEL ******//
-	    String [] columnsAvailable = {"Start time", "end time"};
-	    modelAvailable = new DefaultTableModel(null, columnsAvailable);
-	    tableAvailable = new JTable(modelAvailable){
-			@Override
-			public boolean isCellEditable(int row, int column){
-			        return false;
-			}
-		};
-		
-	    tableAvailable.addMouseListener(new java.awt.event.MouseAdapter() {
-	        @Override
-	        public void mouseClicked(java.awt.event.MouseEvent evt) {
-	            int row = tableAvailable.rowAtPoint(evt.getPoint());
-	            int col = tableAvailable.columnAtPoint(evt.getPoint());
-	            
-	            System.out.println(tableAvailable.getValueAt(row, col));
-	        }
-	    });
-	    JScrollPane scrollAvailable = new JScrollPane(tableAvailable);
-	    
 	    //****** PERSONAL BOOKINGS PANEL ******//
+		JLabel lblBooked = new JLabel("Booked timeslots");
+		lblBooked.setHorizontalAlignment(SwingConstants.CENTER);
+		lblBooked.setBounds(114, 238, 122, 14);
+		leftPanel.add(lblBooked);
+		contentPane.add(rightPanel);
+	    
 	    String [] columnsBooked = {"Date", "Start time", "End time"};
 	    modelBooked = new DefaultTableModel(null, columnsBooked);
 	    tableBooked = new JTable(modelBooked){
@@ -168,16 +172,51 @@ public class GUI extends JFrame {
 	        }
 	    });
 	    JScrollPane scrollBooked = new JScrollPane(tableBooked);
-	    scrollBooked.setBounds(0, 243, 374, 301);
-		leftPanel.setLayout(null);
+	    scrollBooked.setBounds(0, 261, 354, 234);
+		
+		JButton btnRemoveBooking = new JButton("Remove booking");
+		btnRemoveBooking.setBounds(0, 499, 354, 23);
+		leftPanel.add(btnRemoveBooking);
 	    
+	    //****** AVAILABLE BOOKINGS PANEL ******//
+		JLabel lblAvailable = new JLabel("Available timeslots");
+		lblAvailable.setBounds(0, 0, 385, 25);
+		rightPanel.add(lblAvailable);
+		lblAvailable.setHorizontalAlignment(SwingConstants.CENTER);
+	    
+	    String [] columnsAvailable = {"Start time", "end time"};
+	    modelAvailable = new DefaultTableModel(null, columnsAvailable);
+	    tableAvailable = new JTable(modelAvailable){
+			@Override
+			public boolean isCellEditable(int row, int column){
+			        return false;
+			}
+		};
+		
+	    tableAvailable.addMouseListener(new java.awt.event.MouseAdapter() {
+	        @Override
+	        public void mouseClicked(java.awt.event.MouseEvent evt) {
+	            int row = tableAvailable.rowAtPoint(evt.getPoint());
+	            int col = tableAvailable.columnAtPoint(evt.getPoint());
+	            
+	            System.out.println(tableAvailable.getValueAt(row, col));
+	        }
+	    });
+	    JScrollPane scrollAvailable = new JScrollPane(tableAvailable);
+	    scrollAvailable.setBounds(0, 25, 385, 470);
+	    
+		JButton btnBook = new JButton("Book");
+		btnBook.setBounds(0, 499, 385, 23);
+		rightPanel.add(btnBook);
+		contentPane.setLayout(null);
+		contentPane.add(leftPanel);
+	    
+		//****** BIND EVERTHING TOGETHER ******//
 		leftPanel.add(calendar);
 		leftPanel.add(scrollBooked);
 		rightPanel.add(scrollAvailable);
-		contentPane.setLayout(null);
-		contentPane.add(leftPanel);
-		contentPane.add(rightPanel);
-	    
+		leftPanel.setLayout(null);
+		rightPanel.setLayout(null);
 	}
 	
 	//******************** FUNCTION TO UPDATE THE CALENDAR ********************//
