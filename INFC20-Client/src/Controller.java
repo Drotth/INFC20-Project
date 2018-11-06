@@ -52,7 +52,7 @@ public class Controller {
 
 	public void createBooking(String date, String time, String aptID) {
 		if ((date != null && date.contains("null") != true) && time != null && aptID != null) {
-			int timeSlotId;
+			int timeSlotId = 0;
 //			System.out.println("--BOKA APT: " + aptID + " Datum: " + date + " Tid: " + time);
 			
 			switch (time) {
@@ -73,7 +73,7 @@ public class Controller {
 				break;
 			}
 
-			// db.createBooking();
+			db.createBooking(aptID, date, timeSlotId);
 			showAvailable(date);
 			showBooked(aptID);
 		}

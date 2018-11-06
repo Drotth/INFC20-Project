@@ -96,4 +96,20 @@ public class DBConnection {
 			return null;
 		}
 	}
+	
+	public void createBooking(String aptID, String date, int timeSlotId) {
+		String SPsql = "EXEC dbo.CreateBooking ?,?,?";
+		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
+		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
+			ps.setQueryTimeout(5);
+			ps.setDate(1, Date.valueOf(date));
+			ps.setString(3, aptID);
+			ps.setInt(2, timeSlotId);
+			ps.executeQuery();
+			
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
