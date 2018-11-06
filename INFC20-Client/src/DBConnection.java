@@ -105,7 +105,7 @@ public class DBConnection {
 			ps.setDate(1, Date.valueOf(date));
 			ps.setInt(2, timeSlotId);
 			ps.setString(3, aptID);
-			ps.executeQuery();
+			ps.execute();
 			
 		}
 		catch (SQLException e) {
@@ -120,7 +120,7 @@ public class DBConnection {
 			ps.setQueryTimeout(5);
 			ps.setDate(1, Date.valueOf(date));
 			ps.setInt(2, timeSlotId);
-			ps.executeQuery();
+			ps.execute();
 			
 		}
 		catch (SQLException e) {
