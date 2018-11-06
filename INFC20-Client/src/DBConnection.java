@@ -114,7 +114,7 @@ public class DBConnection {
 	}
 	
 	public void removeBooking(String date, int timeSlotId) {
-		String SPsql = "EXEC dbo.RemoveBooking ?,?";
+		String SPsql = "EXEC dbo.DeleteBooking ?,?";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
 		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
 			ps.setQueryTimeout(5);
