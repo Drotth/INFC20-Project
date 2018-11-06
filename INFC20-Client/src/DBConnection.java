@@ -103,7 +103,22 @@ public class DBConnection {
 		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
 			ps.setQueryTimeout(5);
 			ps.setDate(1, Date.valueOf(date));
+			ps.setInt(2, timeSlotId);
 			ps.setString(3, aptID);
+			ps.executeQuery();
+			
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void removeBooking(String date, int timeSlotId) {
+		String SPsql = "EXEC dbo.RemoveBooking ?,?";
+		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
+		try (Connection con = DriverManager.getConnection(connectionUrl); PreparedStatement ps = con.prepareCall(SPsql)){
+			ps.setQueryTimeout(5);
+			ps.setDate(1, Date.valueOf(date));
 			ps.setInt(2, timeSlotId);
 			ps.executeQuery();
 			

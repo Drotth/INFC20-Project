@@ -53,7 +53,6 @@ public class Controller {
 	public void createBooking(String date, String time, String aptID) {
 		if ((date != null && date.contains("null") != true) && time != null && aptID != null) {
 			int timeSlotId = 0;
-//			System.out.println("--BOKA APT: " + aptID + " Datum: " + date + " Tid: " + time);
 			
 			switch (time) {
 			case "07:00:00":
@@ -81,8 +80,7 @@ public class Controller {
 
 	public void removeBooking(String date, String time, String aptID) {
 		if ((date != null && date.contains("null") != true) && time != null && aptID != null) {
-			int timeSlotId;
-//			System.out.println("AVBOKA APT: " + aptID + " Datum: " + date + " Tid: " + time);
+			int timeSlotId = 0;
 
 			switch (time) {
 			case "07:00:00":
@@ -102,7 +100,7 @@ public class Controller {
 				break;
 			}
 
-			// db.removeBooking();
+			db.removeBooking(date, timeSlotId);
 			showAvailable(date);
 			showBooked(aptID);
 		}
