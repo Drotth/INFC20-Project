@@ -1,19 +1,26 @@
 import java.util.ArrayList;
 
+/**
+ * Controller class for the Laundry Booking client. Based upon an MVC structure.
+ * All logics and calculation is handled here, as well as connecting the 
+ * applications various parts.
+ */
 public class Controller {
-
+	
 	private DBConnection db;
 	private GUI gui;
 	private ArrayList<String[]> apartments;
 	private ArrayList<String[]> timeslots;
 
+	//******** CONSTRUCTOR ********//
 	public Controller() {
-		db = new DBConnection();
+		db = new DBConnection(this);
 		apartments = db.getApartments();
 		timeslots = db.getTimeSlots();
 		gui = new GUI(this);
 	}
 
+	//******** FUNCTION TO FETCH APARTMENTS ********//
 	public String[] getApartments() {
 		ArrayList<String[]> data = db.getApartments();
 		String[] list = new String[data.size()];
@@ -23,6 +30,7 @@ public class Controller {
 		return list;
 	}
 
+	//******** FUNCTION TO GET APARTMENT OWNERS NAME ********//
 	public String getName(String aptNbr) {
 		for (String[] apt : apartments) {
 			if (apt[0].equals(aptNbr))
@@ -31,6 +39,7 @@ public class Controller {
 		return "Unknown";
 	}
 
+	//******** FUNCTION TO FETCH AVAILABLE TIMESLOTS FOR DATE ********//
 	public void showAvailable(String date) {
 		ArrayList<String[]> booked = db.getBookedByDate(date);
 		ArrayList<String[]> timeslotsToShow = (ArrayList<String[]>) timeslots.clone();
@@ -46,10 +55,12 @@ public class Controller {
 		gui.showAvailable(timeslotsToShow);
 	}
 
+	//******** FUNCTION TO FETCH BOOKED TIMESLOTS FOR USER ********//
 	public void showBooked(String aptID) {
 		gui.showBooked(db.getBookingsByApt(Integer.parseInt(aptID)));
 	}
 
+	//******** FUNCTION TO CREATE NEW BOOKING ********//
 	public void createBooking(String date, String time, String aptID) {
 		if ((date != null && date.contains("null") != true) && time != null && aptID != null) {
 			int timeSlotId = 0;
@@ -76,8 +87,10 @@ public class Controller {
 			showAvailable(date);
 			showBooked(aptID);
 		}
+		else showError("Make sure to select a valid date and apartment!");
 	}
 
+	//******** FUNCTION TO REMOVE EXISTING BOOKING ********//
 	public void removeBooking(String date, String time, String aptID) {
 		if ((date != null && date.contains("null") != true) && time != null && aptID != null) {
 			int timeSlotId = 0;
@@ -104,5 +117,11 @@ public class Controller {
 			showAvailable(date);
 			showBooked(aptID);
 		}
+		else showError("Make sure to select a valid date and apartment!");
+	}
+	
+	//******** FUNCTION TO SHOW ERROR MESSAGE IN GUI ********//
+	public void showError(String msg) {
+		gui.showError(msg);
 	}
 }

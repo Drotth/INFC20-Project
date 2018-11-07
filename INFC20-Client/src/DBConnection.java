@@ -6,8 +6,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Database access layer for the Laundry Booking application. Based upon
+ * an MVC structure. Here is all the communication with the server and 
+ * database handled.
+ */
 public class DBConnection {
-
+	
+	private Controller controller;
+	
+	//******** CONSTRUCTOR ********//
+	public DBConnection(Controller controller) {
+		this.controller = controller;
+	}
+	
+	//******** FUNCTION TO FETCH APARTMENTS FROM SERVER ********//
 	public ArrayList<String[]> getApartments() {
 		String SPsql = "EXEC dbo.GetUsers";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
@@ -25,12 +38,12 @@ public class DBConnection {
 			
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("null");
+			controller.showError("Connection error!");
 			return null;
 		}
 	}
 	
+	//******** FUNCTION TO FETCH BOOKINGS BY APARTMENT/USER ********//
 	public ArrayList<String[]> getBookingsByApt(int aptID) {
 		String SPsql = "EXEC dbo.GetBookingsByUser ?";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
@@ -48,12 +61,13 @@ public class DBConnection {
 			
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			controller.showError("Connection error!");
 			return null;
 		}
 		
 	}
 	
+	//******** FUNCTION TO FETCH BOOKINGS ON SPECIFIC DATE ********//
 	public ArrayList<String[]> getBookedByDate(String date) {
 		String SPsql = "EXEC dbo.GetBookingsByDate ?";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
@@ -71,11 +85,12 @@ public class DBConnection {
 			
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			controller.showError("Connection error!");
 			return null;
 		}
 	}
 	
+	//******** FUNCTION TO FETCH TIMESLOT STRUCTURE ********//
 	public ArrayList<String[]> getTimeSlots() {
 		String SPsql = "EXEC dbo.GetTimeSlots";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
@@ -92,11 +107,12 @@ public class DBConnection {
 			
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			controller.showError("Connection error!");
 			return null;
 		}
 	}
 	
+	//******** FUNCTION TO PERFORM A NEW BOOKING ********//
 	public void createBooking(String aptID, String date, int timeSlotId) {
 		String SPsql = "EXEC dbo.CreateBooking ?,?,?";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
@@ -109,10 +125,11 @@ public class DBConnection {
 			
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			controller.showError("Connection error!");
 		}
 	}
 	
+	//******** FUNCTION TO REMOVE AN EXISTING BOOKING ********//
 	public void removeBooking(String date, int timeSlotId) {
 		String SPsql = "EXEC dbo.DeleteBooking ?,?";
 		String connectionUrl = "jdbc:sqlserver://infc20dev01.database.windows.net:1433;databaseName=Laundry_Booking;user=INFC20;password=DBpassword!";
@@ -124,7 +141,7 @@ public class DBConnection {
 			
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			controller.showError("Connection error!");
 		}
 	}
 }
