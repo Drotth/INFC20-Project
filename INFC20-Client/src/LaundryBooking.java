@@ -1,4 +1,4 @@
-public class Client {
+public class LaundryBooking {
 	public static void main(String[] args) {
 		Controller controller = new Controller();
 	}

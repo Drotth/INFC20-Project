@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.DefaultComboBoxModel;
@@ -16,7 +17,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.awt.Color;
 
+/**
+ * Graphical user interface for the Laundry Booking application. Based upon
+ * an MVC structure. Intent is that the user never has to enter any line of 
+ * text, but everything is accessible with buttons.
+ */
 public class GUI extends JFrame {
 
 	private Controller controller;
@@ -44,8 +51,10 @@ public class GUI extends JFrame {
 	private JLabel lblHello;
 	private String[] aptList;
 	private JComboBox<String> boxApt;
+	private JLabel lblError;
+	private Timer timer;
 
-	// ******************** CONSTRUCTOR ********************//
+	//******** CONSTRUCTOR ********//
 	public GUI(Controller controller) {
 		setResizable(false);
 		this.controller = controller;
@@ -55,7 +64,7 @@ public class GUI extends JFrame {
 		lblHello.setText("Hello, please select an apartment number!");
 	}
 
-	// ******************** INITIALIZE CONTENTS OF THE FRAME ********************//
+	//******** INITIALIZE CONTENTS OF THE FRAME ********//
 	private void initialize() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(300, 200, 800, 600);
@@ -71,30 +80,36 @@ public class GUI extends JFrame {
 		JPanel calendar = new JPanel(new BorderLayout());
 		calendar.setBounds(0, 0, 354, 227);
 
-		// ****** HEADER OBJECTS ******//
+		//****** HEADER OBJECTS ******//
 		boxApt = new JComboBox<String>();
 		boxApt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				controller.showBooked(boxApt.getSelectedItem().toString());
-				lblHello.setText("Hello " + controller.getName(boxApt.getSelectedItem().toString()) + "!");
+				lblHello.setText("Hello " + controller.getName(
+						boxApt.getSelectedItem().toString()) + "!");
 				selDateBooked = null;
 				selTimeBooked = null;
 				selDateAvailable = null;
 				selTimeAvailable = null;
 			}
 		});
-		boxApt.setBounds(157, 11, 74, 20);
+		boxApt.setBounds(147, 11, 53, 20);
 		contentPane.add(boxApt);
 
 		JLabel lblChooseApartment = new JLabel("Choose apartment:");
-		lblChooseApartment.setBounds(20, 14, 127, 14);
+		lblChooseApartment.setBounds(20, 14, 117, 14);
 		contentPane.add(lblChooseApartment);
 
 		lblHello = new JLabel("Hello");
-		lblHello.setBounds(256, 14, 308, 14);
+		lblHello.setBounds(215, 14, 258, 14);
 		contentPane.add(lblHello);
 
-		// ****** CALENDAR PANEL ******//
+		lblError = new JLabel();
+		lblError.setForeground(Color.RED);
+		lblError.setBounds(500, 14, 274, 14);
+		contentPane.add(lblError);
+
+		//****** CALENDAR PANEL ******//
 		labelMonthYear = new JLabel();
 		labelMonthYear.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -124,7 +139,8 @@ public class GUI extends JFrame {
 		panelHeader.add(labelMonthYear, BorderLayout.CENTER);
 		panelHeader.add(btnNext, BorderLayout.EAST);
 
-		String[] columnsCal = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+		String[] columnsCal = { "Sun", "Mon", "Tue", "Wed", "Thu", 
+				"Fri", "Sat" };
 		modelWeekDays = new DefaultTableModel(null, columnsCal);
 		calTable = new JTable(modelWeekDays) {
 			@Override
@@ -140,7 +156,8 @@ public class GUI extends JFrame {
 				int col = calTable.columnAtPoint(evt.getPoint());
 
 				if (calTable.getValueAt(row, col) != null) {
-					String choosenDate = cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1) + "-"
+					String choosenDate = cal.get(Calendar.YEAR) + "-" + 
+							(cal.get(Calendar.MONTH) + 1) + "-"
 							+ calTable.getValueAt(row, col);
 					controller.showAvailable(choosenDate);
 					selDateAvailable = choosenDate;
@@ -154,7 +171,7 @@ public class GUI extends JFrame {
 
 		updateCalendar();
 
-		// ****** PERSONAL BOOKINGS PANEL ******//
+		//****** PERSONAL BOOKINGS PANEL ******//
 		JLabel lblBooked = new JLabel("Booked timeslots");
 		lblBooked.setHorizontalAlignment(SwingConstants.CENTER);
 		lblBooked.setBounds(114, 238, 122, 14);
@@ -186,14 +203,15 @@ public class GUI extends JFrame {
 		btnRemoveBooking.setBounds(0, 481, 354, 23);
 		btnRemoveBooking.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				controller.removeBooking(selDateBooked, selTimeBooked, boxApt.getSelectedItem().toString());
+				controller.removeBooking(selDateBooked, selTimeBooked, 
+						boxApt.getSelectedItem().toString());
 				selDateBooked = null;
 				selTimeBooked = null;
 			}
 		});
 		leftPanel.add(btnRemoveBooking);
 
-		// ****** AVAILABLE BOOKINGS PANEL ******//
+		//****** AVAILABLE BOOKINGS PANEL ******//
 		JLabel lblAvailable = new JLabel("Available timeslots");
 		lblAvailable.setBounds(0, 0, 385, 25);
 		rightPanel.add(lblAvailable);
@@ -223,7 +241,8 @@ public class GUI extends JFrame {
 		btnBook.setBounds(0, 480, 385, 24);
 		btnBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				controller.createBooking(selDateAvailable, selTimeAvailable, boxApt.getSelectedItem().toString());
+				controller.createBooking(selDateAvailable, selTimeAvailable, 
+						boxApt.getSelectedItem().toString());
 				selTimeAvailable = null;
 			}
 		});
@@ -232,22 +251,30 @@ public class GUI extends JFrame {
 		contentPane.setLayout(null);
 		contentPane.add(leftPanel);
 
-		// ****** BIND EVERTHING TOGETHER ******//
+		//****** BIND EVERTHING TOGETHER ******//
 		leftPanel.add(calendar);
 		leftPanel.add(scrollBooked);
 		rightPanel.add(scrollAvailable);
 		leftPanel.setLayout(null);
 		rightPanel.setLayout(null);
 
+		timer = new Timer(5000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				lblError.setText("");
+			}
+		});
+
 		aptList = controller.getApartments();
 		boxApt.setModel(new DefaultComboBoxModel<String>(aptList));
 	}
 
-	// ******************** FUNCTION TO UPDATE THE CALENDAR ********************//
+	//******** FUNCTION TO UPDATE THE CALENDAR ********//
 	private void updateCalendar() {
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 
-		String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH);
+		String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, 
+				Locale.ENGLISH);
 		int year = cal.get(Calendar.YEAR);
 		labelMonthYear.setText(month + " " + year);
 
@@ -256,7 +283,7 @@ public class GUI extends JFrame {
 		int weeks = cal.getActualMaximum(Calendar.WEEK_OF_MONTH);
 
 		modelWeekDays.setRowCount(0);
-		modelWeekDays.setRowCount(weeks);
+		modelWeekDays.setRowCount(weeks+1);
 
 		int i = startDay - 1;
 		for (int day = 1; day <= numberOfDays; day++) {
@@ -265,7 +292,7 @@ public class GUI extends JFrame {
 		}
 	}
 
-	// ******************** FUNCTION TO CLEAR LIST OF DATA ********************//
+	//******** FUNCTION TO CLEAR LIST OF DATA ********//
 	private void clearList(String list) {
 		switch (list) {
 		case "available":
@@ -281,7 +308,7 @@ public class GUI extends JFrame {
 		}
 	}
 
-	// ******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
+	//******** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********//
 	public void showAvailable(ArrayList<String[]> data) {
 		clearList("available");
 
@@ -290,12 +317,18 @@ public class GUI extends JFrame {
 		}
 	}
 
-	// ******************** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********************//
+	//******** FUNCTION TO FILL AVAILABLE BOOKINGS LIST ********//
 	public void showBooked(ArrayList<String[]> data) {
 		clearList("booked");
 
 		for (int i = 0; i < data.size(); i++) {
 			modelBooked.addRow(data.get(i));
 		}
+	}
+
+	//******** FUNCTION TO SHOW ERROR MESSAGE ********//
+	public void showError(String msg) {
+		lblError.setText(msg);
+		timer.start();
 	}
 }
